@@ -1,7 +1,7 @@
 # vmware-collector
 
-Resource-pool usage dashboard for vCenter, built on the [vmware-aiops](https://github.com/bplein/VMware-AIops) image
-(`FROM ghcr.io/bplein/vmware-aiops:<version>`). Read-only against vCenter.
+Resource-pool usage dashboard for vCenter, built on the [vmware-aiops](https://github.com/vmware-skills/VMware-AIops) package
+(installed from PyPI into `python:3.12-slim`). Read-only against vCenter.
 
 ## Run
 
@@ -30,7 +30,7 @@ Metrics: `prov_gb used_gb mem_gb mem_act_gb vcpu cpu_busy vms`.
 
 ## Versions
 
-`VERSION` is this image's version. The base is pinned by `BASE_VERSION` in the Dockerfile; Dependabot opens a PR when a new
-vmware-aiops tag is published. Tags: `:latest`, `:<VERSION>`, `:<git sha>`.
+`VERSION` is this image's version. The upstream package is pinned by `AIOPS_VERSION` in the Dockerfile. Bump it by hand to
+upgrade. Build and publish manually with `make release` (tags `:latest` and `:<VERSION>`).
 
 Test locally with no vCenter: `COLLECTOR_DEMO_SNAPSHOT=tests/sample_snapshot.json DASHBOARD_CONFIG=config/dashboard.yaml DATA_DIR=/tmp/d python -m collector`

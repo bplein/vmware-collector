@@ -1,7 +1,8 @@
-# Layered on the vmware-aiops image so pyVmomi and vmware_aiops are already present.
-# Bump BASE_VERSION (Dependabot does this) to pick up a new upstream release.
-ARG BASE_VERSION=2.4.2
-FROM ghcr.io/bplein/vmware-aiops:${BASE_VERSION}
+# Single image: python slim plus the upstream vmware-aiops release from PyPI (brings pyVmomi).
+# Bump AIOPS_VERSION to pick up a new upstream release.
+FROM python:3.12-slim
+ARG AIOPS_VERSION=2.4.2
+RUN pip install --no-cache-dir "vmware-aiops==${AIOPS_VERSION}"
 WORKDIR /app
 COPY collector/ collector/
 COPY config/dashboard.yaml /config/dashboard.yaml

@@ -1,6 +1,6 @@
 services:
   collector:
-    image: ghcr.io/pure-px/vmware-collector:latest
+    image: quay.apps.infra-ocp.cna.lab/plein/vmware-collector:latest
     build: .
     restart: unless-stopped
     ports: ["8080:8080"]
