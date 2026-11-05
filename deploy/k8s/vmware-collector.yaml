@@ -1,0 +1,74 @@
+# kubectl apply -f deploy/k8s/vmware-collector.yaml
+# Create the secret first:
+#   kubectl -n vmware-collector create secret generic vcenter --from-literal=VMWARE_CNA_LAB_PASSWORD='...'
+apiVersion: v1
+kind: Namespace
+metadata: {name: vmware-collector}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: dashboard, namespace: vmware-collector}
+data:
+  # Edit and re-apply. The pod picks it up in about a minute with no restart.
+  dashboard.yaml: |
+    site: {eyebrow: vCenter, title: Resource pool usage}
+    collect: {interval_seconds: 900, mhz_per_core: 2900}
+    store: {type: file, keep_snapshots: 96}
+    pages:
+      - id: overview
+        title: Overview
+        widgets:
+          - {type: stat_strip}
+          - {type: ranked_pools, title: Capacity provisioned, metric: prov_gb, overlay: used_gb, top: 5}
+          - {type: ranked_pools, title: Memory provisioned, metric: mem_gb, overlay: mem_act_gb, top: 5}
+          - {type: ranked_pools, title: CPU provisioned, metric: vcpu, overlay: cpu_busy, top: 5}
+      - id: everyone
+        title: All pools
+        widgets:
+          - {type: pool_table, columns: [vms, prov_gb, used_gb, mem_gb, mem_act_gb, vcpu, cpu_busy], sort: prov_gb}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: aiops, namespace: vmware-collector}
+data:
+  config.yaml: |
+    targets:
+      - {name: cna-lab, host: vcenter01.cna.lab, type: vcenter, username: administrator@vsphere.local, port: 443, verify_ssl: false}
+    scanner: {enabled: false}
+    notify: {webhook_url: ''}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: vmware-collector, namespace: vmware-collector}
+spec:
+  selector: {app: vmware-collector}
+  ports: [{port: 80, targetPort: 8080}]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: vmware-collector, namespace: vmware-collector}
+spec:
+  serviceName: vmware-collector
+  replicas: 1
+  selector: {matchLabels: {app: vmware-collector}}
+  template:
+    metadata: {labels: {app: vmware-collector}}
+    spec:
+      containers:
+        - name: collector
+          image: ghcr.io/pure-px/vmware-collector:latest
+          ports: [{containerPort: 8080}]
+          envFrom: [{secretRef: {name: vcenter}}]
+          readinessProbe: {httpGet: {path: /healthz, port: 8080}}
+          livenessProbe: {httpGet: {path: /healthz, port: 8080}, periodSeconds: 30}
+          resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 512Mi}}
+          volumeMounts:
+            - {name: dashboard, mountPath: /config, readOnly: true}
+            - {name: aiops, mountPath: /root/.vmware-aiops, readOnly: true}
+            - {name: data, mountPath: /data}
+      volumes:
+        - {name: dashboard, configMap: {name: dashboard}}
+        - {name: aiops, configMap: {name: aiops}}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 1Gi}}}

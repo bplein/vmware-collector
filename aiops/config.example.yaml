@@ -1,0 +1,14 @@
+# vmware-aiops target. The password comes from the environment, not this file:
+#   VMWARE_<TARGET>_PASSWORD  (target "cna-lab" -> VMWARE_CNA_LAB_PASSWORD)
+# Use a read-only vCenter account; this collector only reads.
+targets:
+  - name: cna-lab
+    host: vcenter01.cna.lab
+    type: vcenter
+    username: administrator@vsphere.local
+    port: 443
+    verify_ssl: false
+scanner:
+  enabled: false
+notify:
+  webhook_url: ''

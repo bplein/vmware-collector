@@ -1,0 +1,61 @@
+# Edit this file (or the ConfigMap) and the page updates within a few seconds.
+# A bad edit keeps the last good config and shows a banner with the error.
+site:
+  eyebrow: vCenter
+  title: Resource pool usage
+collect:
+  interval_seconds: 900     # how often to read vCenter
+  mhz_per_core: 2900        # converts live CPU MHz to "busy vCPUs"
+store:
+  type: file                # file now; add a database backend in collector/store.py later
+  keep_snapshots: 96        # ~24 h at 15 min
+pages:
+  - id: overview
+    title: Overview
+    lede: The five largest resource pools, one per user, for powered-on VMs only.
+    widgets:
+      - type: stat_strip
+        stats: [vms, capacity, memory, cpu]
+      - type: ranked_pools
+        title: Capacity provisioned
+        sub: Thin-provisioned maximum, with the part already written shown darker
+        metric: prov_gb
+        overlay: used_gb
+        top: 5
+      - type: ranked_pools
+        title: Capacity used
+        sub: Space written to datastores today
+        metric: used_gb
+        top: 5
+      - type: ranked_pools
+        title: Memory provisioned
+        sub: Configured guest memory, with host memory consumed shown darker
+        metric: mem_gb
+        overlay: mem_act_gb
+        top: 5
+      - type: ranked_pools
+        title: CPU provisioned
+        sub: Configured vCPUs, with busy vCPUs shown darker
+        metric: vcpu
+        overlay: cpu_busy
+        top: 5
+  - id: live
+    title: Live usage
+    lede: What is actually consumed right now. One reading, so it moves minute to minute.
+    widgets:
+      - type: ranked_pools
+        title: Memory actual
+        metric: mem_act_gb
+        top: 10
+      - type: ranked_pools
+        title: CPU actual
+        sub: Busy vCPUs from live MHz
+        metric: cpu_busy
+        top: 10
+  - id: everyone
+    title: All pools
+    lede: Every pool with powered-on VMs.
+    widgets:
+      - type: pool_table
+        columns: [vms, prov_gb, used_gb, mem_gb, mem_act_gb, vcpu, cpu_busy]
+        sort: prov_gb

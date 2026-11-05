@@ -1,0 +1,13 @@
+services:
+  collector:
+    image: ghcr.io/pure-px/vmware-collector:latest
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    env_file: .env                                   # VMWARE_<TARGET>_PASSWORD
+    volumes:
+      - ./config/dashboard.yaml:/config/dashboard.yaml:ro   # edit this file; pages update live
+      - ./aiops/config.yaml:/root/.vmware-aiops/config.yaml:ro
+      - data:/data
+volumes:
+  data:
