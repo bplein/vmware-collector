@@ -7,13 +7,13 @@ permissions: {contents: read, packages: write}
 env: {IMAGE: ghcr.io/pure-px/vmware-collector}
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: small
     steps:
       - uses: actions/checkout@v4
       - run: pip install pyyaml && python -m unittest discover tests
   image:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: small
     steps:
       - uses: actions/checkout@v4
       - id: v
