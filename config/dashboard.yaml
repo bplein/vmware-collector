@@ -1,4 +1,4 @@
-# Edit this file (or the ConfigMap) and the page updates within a few seconds.
+# Edit and the page updates with no restart: next page load here, about a minute via the ConfigMap.
 # A bad edit keeps the last good config and shows a banner with the error.
 site:
   eyebrow: vCenter
