@@ -34,7 +34,7 @@ metadata: {name: aiops, namespace: vmware-collector}
 data:
   config.yaml: |
     targets:
-      - {name: cna-lab, host: vcenter01.cna.lab, type: vcenter, username: administrator@vsphere.local, port: 443, verify_ssl: false}
+      - {name: cna-lab, host: vcenter01.cna.lab, type: vcenter, username: collector-ro@vsphere.local, port: 443, verify_ssl: false}
     scanner: {enabled: false}
     notify: {webhook_url: ''}
 ---
