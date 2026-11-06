@@ -24,7 +24,7 @@ data:
           - {type: ranked_pools, title: Memory provisioned, metric: mem_gb, overlay: mem_act_gb, top: 5}
           - {type: ranked_pools, title: CPU provisioned, metric: vcpu, overlay: cpu_busy, top: 5}
       - id: everyone
-        title: All pools
+        title: All resource pools
         widgets:
           - {type: pool_table, columns: [vms, prov_gb, used_gb, mem_gb, mem_act_gb, vcpu, cpu_busy], sort: prov_gb}
 ---

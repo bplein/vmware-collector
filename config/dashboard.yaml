@@ -53,8 +53,8 @@ pages:
         metric: cpu_busy
         top: 10
   - id: everyone
-    title: All pools
-    lede: Every pool with powered-on VMs.
+    title: All resource pools
+    lede: Every resource pool with powered-on VMs.
     widgets:
       - type: pool_table
         columns: [vms, prov_gb, used_gb, mem_gb, mem_act_gb, vcpu, cpu_busy]

@@ -55,7 +55,7 @@ class StatStrip(Widget):
         rows = pool_rows(ctx)
         t = lambda k: sum(r[k] for r in rows)
         all_stats = {
-            "vms": ("Powered-on VMs", f'{t("vms")} <small>in {len(rows)} pools</small>'),
+            "vms": ("Powered-on VMs", f'{t("vms")} <small>in {len(rows)} resource pools</small>'),
             "capacity": ("Capacity", f'{_cap(t("used_gb"))} <small>of {_cap(t("prov_gb"))}</small>'),
             "memory": ("Memory", f'{_cap(t("mem_act_gb"))} <small>of {_cap(t("mem_gb"))}</small>'),
             "cpu": ("CPU", f'{t("cpu_busy"):.0f} <small>of {int(t("vcpu"))} vCPU busy</small>'),
@@ -110,6 +110,6 @@ class PoolTable(Widget):
     def render(cfg, ctx):
         cols = cfg.get("columns") or ["vms", "prov_gb", "used_gb"]
         rows = sorted(pool_rows(ctx), key=lambda r: -r[cfg.get("sort", cols[0])])
-        head = "<th>Pool</th>" + "".join(f"<th>{esc(METRICS[c][0])}</th>" for c in cols)
+        head = "<th>Resource pool</th>" + "".join(f"<th>{esc(METRICS[c][0])}</th>" for c in cols)
         body = "".join(f"<tr><td>{esc(r['name'])}</td>" + "".join(f"<td>{METRICS[c][1](r[c])}</td>" for c in cols) + "</tr>" for r in rows)
-        return f'<section class="card wide"><h2>{esc(cfg.get("title", "Pools"))}</h2><div class="scroll"><table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div></section>'
+        return f'<section class="card wide"><h2>{esc(cfg.get("title", "Resource pools"))}</h2><div class="scroll"><table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div></section>'
