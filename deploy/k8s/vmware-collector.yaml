@@ -56,7 +56,7 @@ spec:
     spec:
       containers:
         - name: collector
-          image: quay.apps.infra-ocp.cna.lab/plein/vmware-collector:latest
+          image: ghcr.io/bplein/vmware-collector:latest
           ports: [{containerPort: 8080}]
           envFrom: [{secretRef: {name: vcenter}}]
           readinessProbe: {httpGet: {path: /healthz, port: 8080}}
