@@ -43,7 +43,7 @@ kind: Service
 metadata: {name: vmware-collector, namespace: vmware-collector}
 spec:
   selector: {app: vmware-collector}
-  ports: [{port: 80, targetPort: 8080}]
+  ports: [{name: http, port: 80, targetPort: 8080}]
 ---
 # OpenShift users: this exposes the dashboard at
 # https://vmware-collector-vmware-collector.apps.<ingress-domain> (edge TLS).
@@ -55,7 +55,7 @@ metadata: {name: vmware-collector, namespace: vmware-collector}
 spec:
   host: vmware-collector-vmware-collector.apps.ocp1.plein.cna.lab
   to: {kind: Service, name: vmware-collector}
-  port: {targetPort: 80}
+  port: {targetPort: http}
   tls: {termination: edge, insecureEdgeTerminationPolicy: Redirect}
 ---
 apiVersion: apps/v1
@@ -73,12 +73,16 @@ spec:
           image: ghcr.io/bplein/vmware-collector:latest
           ports: [{containerPort: 8080}]
           envFrom: [{secretRef: {name: vcenter}}]
+          # /root mode is 0700 and unreadable under OpenShift's arbitrary-UID SCC;
+          # mount the aiops config somewhere UID-neutral and point the env at it.
+          env:
+            - {name: VMWARE_AIOPS_CONFIG, value: /aiops/config.yaml}
           readinessProbe: {httpGet: {path: /healthz, port: 8080}}
           livenessProbe: {httpGet: {path: /healthz, port: 8080}, periodSeconds: 30}
           resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 512Mi}}
           volumeMounts:
             - {name: dashboard, mountPath: /config, readOnly: true}
-            - {name: aiops, mountPath: /root/.vmware-aiops, readOnly: true}
+            - {name: aiops, mountPath: /aiops, readOnly: true}
             - {name: data, mountPath: /data}
       volumes:
         - {name: dashboard, configMap: {name: dashboard}}
