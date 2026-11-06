@@ -68,10 +68,19 @@ spec:
   template:
     metadata: {labels: {app: vmware-collector}}
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile: {type: RuntimeDefault}
       containers:
         - name: collector
           image: ghcr.io/bplein/vmware-collector:latest
           ports: [{containerPort: 8080}]
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
           envFrom: [{secretRef: {name: vcenter}}]
           # /root mode is 0700 and unreadable under OpenShift's arbitrary-UID SCC;
           # mount the aiops config somewhere UID-neutral and point the env at it.
