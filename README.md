@@ -31,6 +31,10 @@ Metrics: `prov_gb used_gb mem_gb mem_act_gb vcpu cpu_busy vms`.
 ## Versions
 
 `VERSION` is this image's version. The upstream package is pinned by `AIOPS_VERSION` in the Dockerfile. Bump it by hand to
-upgrade. Build and publish manually with `make release` (tags `:latest` and `:<VERSION>`).
+upgrade.
+
+Pushes to `main` (or tags `v*`) run GitHub Actions (`.github/workflows/docker-ghcr.yml`), which builds `linux/amd64` and
+pushes `ghcr.io/bplein/vmware-collector:{latest,<VERSION>,sha-<git sha>}`. The package is public, so pulls need no auth.
+Local build/push also works with `make build` / `make push` / `make release` (REGISTRY defaults to GHCR; override if needed).
 
 Test locally with no vCenter: `COLLECTOR_DEMO_SNAPSHOT=tests/sample_snapshot.json DASHBOARD_CONFIG=config/dashboard.yaml DATA_DIR=/tmp/d python -m collector`

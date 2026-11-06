@@ -1,6 +1,7 @@
 # kubectl apply -f deploy/k8s/vmware-collector.yaml
-# Create the secret first:
+# Create the vCenter secret first (namespace must exist):
 #   kubectl -n vmware-collector create secret generic vcenter --from-literal=VMWARE_CNA_LAB_PASSWORD='...'
+# The image is public on ghcr.io (bplein/vmware-collector), so no pull secret is needed.
 apiVersion: v1
 kind: Namespace
 metadata: {name: vmware-collector}
@@ -43,6 +44,19 @@ metadata: {name: vmware-collector, namespace: vmware-collector}
 spec:
   selector: {app: vmware-collector}
   ports: [{port: 80, targetPort: 8080}]
+---
+# OpenShift users: this exposes the dashboard at
+# https://vmware-collector-vmware-collector.apps.<ingress-domain> (edge TLS).
+# On plain Kubernetes use an Ingress or `kubectl port-forward svc/vmware-collector 8080:80` instead.
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata: {name: vmware-collector, namespace: vmware-collector}
+spec:
+  host: vmware-collector-vmware-collector.apps.ocp1.plein.cna.lab
+  to: {kind: Service, name: vmware-collector}
+  port: {targetPort: 80}
+  tls: {termination: edge, insecureEdgeTerminationPolicy: Redirect}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
