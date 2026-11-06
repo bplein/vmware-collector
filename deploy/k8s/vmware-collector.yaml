@@ -73,7 +73,8 @@ spec:
         seccompProfile: {type: RuntimeDefault}
       containers:
         - name: collector
-          image: ghcr.io/bplein/vmware-collector:latest
+          # Pinned tag — bump with VERSION on release; never :latest.
+          image: ghcr.io/bplein/vmware-collector:0.2.1
           ports: [{containerPort: 8080}]
           securityContext:
             runAsNonRoot: true
